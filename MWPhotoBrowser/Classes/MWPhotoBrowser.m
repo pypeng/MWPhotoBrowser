@@ -770,6 +770,11 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         // photo loaded so load ajacent now
         [self loadAdjacentPhotosIfNecessary:currentPhoto];
     }
+
+
+    if ([_delegate respondsToSelector:@selector(scrollViewDidScrollToIndex:)]) {
+        [_delegate scrollViewDidScrollToIndex:index];
+    }
     
 }
 
