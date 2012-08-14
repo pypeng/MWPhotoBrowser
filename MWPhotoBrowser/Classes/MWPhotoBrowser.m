@@ -278,6 +278,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         [_toolbar removeFromSuperview];
     }
     
+    /*
     // Toolbar items & navigation
     UIBarButtonItem *fixedLeftSpace = [[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:self action:nil] autorelease];
     fixedLeftSpace.width = 32; // To balance action button
@@ -325,6 +326,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         self.previousViewControllerBackButton = previousViewController.navigationItem.backBarButtonItem; // remember previous
         previousViewController.navigationItem.backBarButtonItem = newBackButton;
     }
+     */
     
     // Content offset
 	_pagingScrollView.contentOffset = [self contentOffsetForPageAtIndex:_currentPageIndex];
@@ -362,12 +364,13 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
         [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:animated];
     }
     
+    /*
     // Navigation bar appearance
     if (!_viewIsActive && [self.navigationController.viewControllers objectAtIndex:0] != self) {
         [self storePreviousNavBarAppearance];
     }
     [self setNavBarAppearance:animated];
-    
+    */
     // Update UI
 	[self hideControlsAfterDelay];
     
@@ -924,18 +927,21 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
             statusBarHeight = MIN(statusBarFrame.size.height, statusBarFrame.size.width);
         }
         
+        /*
         // Set navigation bar frame
         CGRect navBarFrame = self.navigationController.navigationBar.frame;
         navBarFrame.origin.y = statusBarHeight;
         self.navigationController.navigationBar.frame = navBarFrame;
-        
+        */
     }
     
+    /*
     // Captions
     NSMutableSet *captionViews = [[[NSMutableSet alloc] initWithCapacity:_visiblePages.count] autorelease];
     for (MWZoomingScrollView *page in _visiblePages) {
         if (page.captionView) [captionViews addObject:page.captionView];
     }
+     */
 	
 	// Animate
     if (animated) {
@@ -945,7 +951,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     CGFloat alpha = hidden ? 0 : 1;
 	[self.navigationController.navigationBar setAlpha:alpha];
 	[_toolbar setAlpha:alpha];
-    for (UIView *v in captionViews) v.alpha = alpha;
+   // for (UIView *v in captionViews) v.alpha = alpha;
 	if (animated) [UIView commitAnimations];
 	
 	// Control hiding timer
@@ -974,7 +980,30 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
 
 - (BOOL)areControlsHidden { return (_toolbar.alpha == 0); /* [UIApplication sharedApplication].isStatusBarHidden; */ }
 - (void)hideControls { [self setControlsHidden:YES animated:YES permanent:NO]; }
-- (void)toggleControls { [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO]; }
+- (void)toggleControls {
+    BOOL isModal = ((self.parentViewController && self.parentViewController.modalViewController == self) ||
+                    //or if I have a navigation controller, check if its parent modal view controller is self navigation controller
+                    ( self.navigationController && self.navigationController.parentViewController && self.navigationController.parentViewController.modalViewController == self.navigationController) ||
+                    //or if the parent of my UITabBarController is also a UITabBarController class, then there is no way to do that, except by using a modal presentation
+                    [[[self tabBarController] parentViewController] isKindOfClass:[UITabBarController class]]);
+    
+    //iOS 5+
+    if (!isModal && [self respondsToSelector:@selector(presentingViewController)]) {
+        
+        isModal = ((self.presentingViewController && self.presentingViewController.modalViewController == self) ||
+                   //or if I have a navigation controller, check if its parent modal view controller is self navigation controller
+                   (self.navigationController && self.navigationController.presentingViewController && self.navigationController.presentingViewController.modalViewController == self.navigationController) ||
+                   //or if the parent of my UITabBarController is also a UITabBarController class, then there is no way to do that, except by using a modal presentation
+                   [[[self tabBarController] presentingViewController] isKindOfClass:[UITabBarController class]]);
+        
+    }
+    
+    if (isModal) {
+        [self dismissModalViewControllerAnimated:YES];
+    } else {
+        [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO];
+    }
+}
 
 #pragma mark - Properties
 
