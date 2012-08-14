@@ -256,6 +256,8 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     // Update
     [self reloadData];
     
+    [self setControlsHidden:YES animated:NO permanent:YES];
+    
 	// Super
     [super viewDidLoad];
 	
