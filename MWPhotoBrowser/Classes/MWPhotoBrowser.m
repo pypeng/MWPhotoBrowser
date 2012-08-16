@@ -1001,7 +1001,7 @@ navigationBarBackgroundImageLandscapePhone = _navigationBarBackgroundImageLandsc
     }
     
     if (isModal) {
-        [self dismissModalViewControllerAnimated:YES];
+        [self dismissModalViewControllerAnimated:NO];
     } else {
         [self setControlsHidden:![self areControlsHidden] animated:YES permanent:NO];
     }
